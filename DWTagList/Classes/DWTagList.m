@@ -80,6 +80,14 @@
 
 - (void)setTags:(NSArray *)array
 {
+    
+    [self.subviews enumerateObjectsUsingBlock:^(DWTagView *tagView, NSUInteger idx, BOOL *stop) {
+        if ([tagView isKindOfClass:[DWTagView class]]) {
+            [tagView removeFromSuperview];
+        }
+    }];
+
+    
     textArray = [[NSArray alloc] initWithArray:array];
     sizeFit = CGSizeZero;
     if (automaticResize) {
@@ -89,6 +97,22 @@
     else {
         [self setNeedsLayout];
     }
+}
+
+/// Get selected tags
+- (NSArray *)selectedTags
+{
+    NSMutableArray *selectedTagsArray = [NSMutableArray arrayWithCapacity:[self.subviews count]];
+    [self.subviews enumerateObjectsUsingBlock:^(DWTagView *tagView, NSUInteger idx, BOOL *stop) {
+        if ([tagView isKindOfClass:[DWTagView class]]) {
+            if (tagView.active) {
+                [selectedTagsArray addObject:tagView.label.text];
+            }
+        }
+    }];
+    
+    return selectedTagsArray;
+    
 }
 
 - (void)setTagBackgroundColor:(UIColor *)color
@@ -205,13 +229,17 @@
 - (void)touchDownInside:(id)sender
 {
     UIButton *button = (UIButton*)sender;
-    [[button superview] setBackgroundColor:self.highlightedBackgroundColor];
+    //[[button superview] setBackgroundColor:self.highlightedBackgroundColor];
 }
 
 - (void)touchUpInside:(id)sender
 {
     UIButton *button = (UIButton*)sender;
     DWTagView *tagView = (DWTagView *)[button superview];
+    //[tagView setBackgroundColor:[self getBackgroundColor]];
+    
+    tagView.active = !tagView.active;
+    
     [tagView setBackgroundColor:[self getBackgroundColor]];
     
     if ([self.tagDelegate respondsToSelector:@selector(selectedTag:tagIndex:)]) {
@@ -332,8 +360,21 @@
         [self.layer setCornerRadius:CORNER_RADIUS];
         [self.layer setBorderColor:BORDER_COLOR];
         [self.layer setBorderWidth:BORDER_WIDTH];
+        
+        self.active = NO;
+
     }
     return self;
+}
+
+- (void)setBackgroundColor:(UIColor *)color
+{
+    if (self.active) {
+        [super setBackgroundColor:color];
+    }
+    else {
+        [super setBackgroundColor:[color colorWithAlphaComponent:0.4]];
+    }
 }
 
 - (void)updateWithString:(id)text font:(UIFont*)font constrainedToWidth:(CGFloat)maxWidth padding:(CGSize)padding minimumWidth:(CGFloat)minimumWidth
