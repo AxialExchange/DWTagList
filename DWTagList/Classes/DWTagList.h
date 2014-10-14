@@ -41,6 +41,7 @@
 - (void)setTagHighlightColor:(UIColor *)color;
 - (void)setTags:(NSArray *)array;
 - (void)display;
+- (NSArray *)selectedTags;
 - (CGSize)fittedSize;
 
 @end
@@ -49,6 +50,7 @@
 
 @property (nonatomic, strong) UIButton              *button;
 @property (nonatomic, strong) UILabel               *label;
+@property (nonatomic, assign) BOOL                   active;
 @property (nonatomic, weak)   id<DWTagViewDelegate> delegate;
 
 - (void)updateWithString:(NSString*)text
